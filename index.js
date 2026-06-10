@@ -22,14 +22,14 @@ http.createServer(async(req, res) => {
     const headers = new Headers();
     for(const key in req.headers){
       try{
-        headers.set(key,value.replace(localhost,hostTarget));
+        headers.set(key,String(req.headers[key].replace(localhost,hostTarget));
       }catch(e){
         console.warn(e,key,value);
       }
     }
     const method = String(req.method).toUpperCase();
-    const options = {method,headers,redirect:follow};
-    if(/GET|HEAD/.test(method) && req.body){
+    const options = {method,headers,redirect:'follow'};
+    if(!/GET|HEAD/.test(method) && req.body){
       options.body = Readable.toWeb(req.body);
     }
     const request = new Request(url,options);
