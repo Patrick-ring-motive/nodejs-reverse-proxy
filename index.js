@@ -53,8 +53,11 @@ http.createServer(async(req, res) => {
     ];
     for(const [key,value] of response.headers){
       try{
-        if(skipHeaders.some(x=>RegExp(x,'i').test(key)))continue;
-        res.setHeader(key,value);
+        if(skipHeaders.some(x=>RegExp(x,'i').test(key))){
+          console.log(`Skipping header ${key}:${value} for ${request.url}`);
+          continue;
+        }
+        res.setHeader(key,value.replace(hostTarget,localhost));
       }catch(e){
         console.warn(e,key,value);
       }
