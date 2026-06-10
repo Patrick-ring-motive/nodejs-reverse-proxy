@@ -31,7 +31,10 @@ http.createServer(async(req, res) => {
     res.statusMessage = response.status;
     for(const [key,value] of response.headers){
       try{
-        res.headers.set(key,value);
+        if(/content-length/i.test(key)){
+          continue;
+        }
+        res.setHeader(key,value);
       }catch(e){
         console.warn(e,key,value);
       }
