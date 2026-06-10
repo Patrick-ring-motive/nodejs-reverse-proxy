@@ -27,6 +27,9 @@ http.createServer(async(req, res) => {
     }
     const request = new Request(url,options);
     const response = await fetchResponse(request);
+    if(!/^2/.test(response.status)){
+      console.warn(request,response);
+    }
     res.statusCode = response.status;
     res.statusMessage = response.status;
     for(const [key,value] of response.headers){
