@@ -19,7 +19,7 @@ http.createServer(async(req, res) => {
   try{
     const localhost = req.headers['host'];
     const url = `https://${hostTarget}${req.path}`;
-    const headers = new Headers(req.rawHeaders.map(([key,value])=>[key,value.replace(localhost,hostTarget)]));
+    const headers = new Headers(Object.entries(req.headers).map(([key,value])=>[key,value.replace(localhost,hostTarget)]));
     const method = String(req.method).toUpperCase();
     const options = {method,headers};
     if(/GET|HEAD/.test(method) && req.body){
