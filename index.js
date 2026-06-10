@@ -8,7 +8,7 @@ const fetchResponse = async (...args) => {
     return await fetch(...args);
   } catch (e) {
     console.warn(e, ...args);
-    return new Response(String(e), {
+    return new Response(inspect(e), {
       status: 500,
       statusText: String(e)
     });
@@ -42,12 +42,11 @@ http.createServer(async(req, res) => {
 
     res.end();
   }catch(e){
-    console.warn(e,req,res);
-    const msg = String(e);
     try{
+      console.warn(e,req,res);
       res.statusCode = 500;
-      res.statusMessage = msg;
-      res.end(msg);
+      res.statusMessage = String(e);
+      res.end(inspect(e));
     }catch{}
   }
 }).listen(8080);
