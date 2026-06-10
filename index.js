@@ -41,10 +41,18 @@ http.createServer(async(req, res) => {
       response = await fetchResponse(response.headers.get('location'));
     }
     res.statusCode = response.status;
-    res.statusMessage = response.status;
+    res.statusMessage = response.statusText;
+    const skipHeaders = [
+      'content-length',
+      'x-content-type-options',
+      'x-dns-prefetch-control',
+      'x-frame-options',
+      'referer-policy',
+      'content-security-policy'
+    ];
     for(const [key,value] of response.headers){
       try{
-        if(/content-length/i.test(key))continue;
+        if(skipHeaders.some(x=>RegExp(x,'i').test(key)))continue;
         res.setHeader(key,value);
       }catch(e){
         console.warn(e,key,value);
