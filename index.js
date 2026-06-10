@@ -48,7 +48,7 @@ http.createServer(async(req, res) => {
       'x-content-type-options',
       'x-dns-prefetch-control',
       'x-frame-options',
-      'referer-policy',
+      'referrer-policy',
       'content-security-policy'
     ];
     for(const [key,value] of response.headers){
