@@ -55,7 +55,7 @@ http.createServer(async(req, res) => {
           }
           options.headers.set(key,String(req.headers[key]).replace(localhost,hostTarget));
         }catch(e){
-          console.warn(e,key,value);
+          console.warn(e, key, req.headers[key]);
         }
       }
       if(stream){
