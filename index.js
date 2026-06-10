@@ -19,16 +19,26 @@ http.createServer(async(req, res) => {
   try{
     const localhost = req.headers['host'];
     const url = `https://${hostTarget}${req.url}`;
-    const headers = new Headers(Object.entries(req.headers).map(([key,value])=>[key,value.replace(localhost,hostTarget)]));
+    const headers = new Headers();
+    for(const key in req.headers){
+      try{
+        headers.set(key,value.replace(localhost,hostTarget));
+      }catch(e){
+        console.warn(e,key,value);
+      }
+    }
     const method = String(req.method).toUpperCase();
     const options = {method,headers,redirect:follow};
     if(/GET|HEAD/.test(method) && req.body){
       options.body = Readable.toWeb(req.body);
     }
     const request = new Request(url,options);
-    const response = await fetchResponse(request);
+    let response = await fetchResponse(request);
     if(!/^2/.test(response.status)){
       console.warn(request,response);
+    }
+    if(/^3/.test(response.status)&&response.headers.get('location')){
+      response = await fetchResponse(response.headers.get('location'));
     }
     res.statusCode = response.status;
     res.statusMessage = response.status;
