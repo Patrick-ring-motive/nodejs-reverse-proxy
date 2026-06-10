@@ -1,6 +1,6 @@
 const http = require('http');
 const {inspect} = require('util');
-const {Readable) = require('stream');
+const {Readable} = require('stream');
 const hostTarget = process.env.HOST_TARGET;
 
 const fetchResponse = async (...args) => {
