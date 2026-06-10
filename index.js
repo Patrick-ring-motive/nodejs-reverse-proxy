@@ -1,7 +1,12 @@
 const http = require('http');
 const {inspect} = require('util');
 const {Readable} = require('stream');
-const hostTarget = process.env.HOST_TARGET;
+const nparse = x =>{
+  try{
+    return JSON.parse(x);
+  }catch{}
+};
+const targets = nparse(process.env.HOST_TARGETS);
 
 const fetchResponse = async (...args) => {
   try {
@@ -18,27 +23,36 @@ const fetchResponse = async (...args) => {
 http.createServer(async(req, res) => {
   try{
     const localhost = req.headers['host'];
-    const url = `https://${hostTarget}${req.url}`;
-    const headers = new Headers();
-    for(const key in req.headers){
-      try{
-        headers.set(key,String(req.headers[key]).replace(localhost,hostTarget));
-      }catch(e){
-        console.warn(e,key,value);
-      }
-    }
     const method = String(req.method).toUpperCase();
-    const options = {method,headers,redirect:'follow'};
+    const options = {method,redirect:'follow'};
+    let stream;
     if(!/GET|HEAD/.test(method) && req.body){
-      options.body = Readable.toWeb(req.body);
+      stream = new Response(Readable.toWeb(req.body));
     }
-    const request = new Request(url,options);
-    let response = await fetchResponse(request);
-    if(!/^2/.test(response.status)){
-      console.warn(request,response);
-    }
-    if(/^3/.test(response.status)&&response.headers.get('location')){
-      response = await fetchResponse(response.headers.get('location'));
+    for(const hostTarget of targets){
+      const url = `https://${hostTarget}${req.url}`;
+      options.headers = new Headers();
+      for(const key in req.headers){
+        try{
+          options.headers.set(key,String(req.headers[key]).replace(localhost,hostTarget));
+        }catch(e){
+          console.warn(e,key,value);
+        }
+      }
+      if(stream){
+        options.body = stream.clone().body;
+      }
+      const request = new Request(url,options);
+      let response = await fetchResponse(request.clone());
+      if(!/^2/.test(response.status)){
+        console.warn(request,response);
+      }
+      if(/^3/.test(response.status)&&response.headers.get('location')){
+        response = await fetchResponse(response.headers.get('location'));
+      }
+      if(/^2/.test(response.status)){
+        break;
+      }
     }
     res.statusCode = response.status;
     res.statusMessage = response.statusText;
