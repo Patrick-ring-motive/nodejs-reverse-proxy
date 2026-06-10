@@ -26,7 +26,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const localhost = req.headers['host'];
     const method = String(req.method).toUpperCase();
-    const options = { method, redirect: 'follow' };
+    const options = { method, redirect: 'manual' };
     let stream, request, response, hostTarget;
 
     if(!/GET|HEAD/.test(method)) {
@@ -47,10 +47,7 @@ const server = http.createServer(async (req, res) => {
       }
       request = new Request(url, options);
       response = await fetchResponse(request.clone());
-      if(/^3/.test(response.status) && response.headers.get('location')) {
-        response = await fetchResponse(response.headers.get('location'));
-      }
-      if(/^2/.test(response.status)) break;
+      if(/^[23]/.test(response.status)) break;
       console.warn(request, response);
     }
 
