@@ -41,7 +41,10 @@ const server = http.createServer(async (req, res) => {
           options.headers.set(key, String(req.headers[key]).replace(localhost, hostTarget));
         } catch(e) { console.warn(e, key, req.headers[key]); }
       }
-      if(stream) options.body = stream.clone().body;
+      if(stream){
+        options.body = stream.clone().body;
+        options.duplex = 'half';
+      }
       request = new Request(url, options);
       response = await fetchResponse(request.clone());
       if(/^3/.test(response.status) && response.headers.get('location')) {
