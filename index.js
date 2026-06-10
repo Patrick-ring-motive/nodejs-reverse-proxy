@@ -20,6 +20,18 @@ const fetchResponse = async (...args) => {
   }
 };
 
+const skipHeaders = [
+  'content-length',
+  'content-encoding',
+  'x-content-type-options',
+  'x-dns-prefetch-control',
+  'x-frame-options',
+  'referrer-policy',
+  'content-security-policy',
+  'x-xss-protection',
+  'x-forwarded'
+];
+
 http.createServer(async(req, res) => {
   try{
     const localhost = req.headers['host'];
@@ -37,6 +49,10 @@ http.createServer(async(req, res) => {
       options.headers = new Headers();
       for(const key in req.headers){
         try{
+          if(skipHeaders.some(x=>RegExp(x,'i').test(key))){
+            console.log(`Skipping Request header ${key}:${req.headers[key]} for ${url}`);
+            continue;
+          }
           options.headers.set(key,String(req.headers[key]).replace(localhost,hostTarget));
         }catch(e){
           console.warn(e,key,value);
@@ -59,21 +75,10 @@ http.createServer(async(req, res) => {
     }
     res.statusCode = response.status;
     res.statusMessage = response.statusText;
-    const skipHeaders = [
-      'content-length',
-      'content-encoding',
-      'x-content-type-options',
-      'x-dns-prefetch-control',
-      'x-frame-options',
-      'referrer-policy',
-      'content-security-policy',
-      'x-xss-protection',
-      'x-forwarded'
-    ];
     for(const [key,value] of response.headers){
       try{
         if(skipHeaders.some(x=>RegExp(x,'i').test(key))){
-          console.log(`Skipping header ${key}:${value} for ${request.url}`);
+          console.log(`Skipping Response header ${key}:${value} for ${request.url}`);
           continue;
         }
         res.setHeader(key,value.replace(hostTarget,localhost));
