@@ -18,7 +18,8 @@ const fetchResponse = async (...args) => {
 const skipHeaders = [
   'content-length','content-encoding','x-content-type-options',
   'x-dns-prefetch-control','x-frame-options','referrer-policy',
-  'content-security-policy','x-xss-protection','x-forwarded'
+  'content-security-policy','x-xss-protection','x-forwarded',
+  'forwarded'
 ];
 const shouldSkip = key => skipHeaders.some(x => RegExp(x,'i').test(key));
 
@@ -43,7 +44,7 @@ const server = http.createServer(async (req, res) => {
       for(const key in req.headers) {
         try {
           if(shouldSkip(key)) continue;
-          options.headers.set(key, String(req.headers[key]).replace(localhost, hostTarget));
+          options.headers.set(key, String(req.headers[key]).replaceAll(localhost, hostTarget));
         } catch(e) { console.warn(e, key, req.headers[key]); }
       }
       if(stream){
@@ -112,7 +113,7 @@ server.on('upgrade', async (req, clientSocket, head) => {
   let raw = `${req.method} ${req.url} HTTP/1.1\r\n`;
   for(const key of Object.keys(req.headers)) {
     if(shouldSkip(key)) continue;
-    raw += `${key}: ${String(req.headers[key]).replace(localhost, hostTarget)}\r\n`;
+    raw += `${key}: ${String(req.headers[key]).replaceAll(localhost, hostTarget)}\r\n`;
   }
   raw += '\r\n';
 
