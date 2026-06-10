@@ -60,9 +60,13 @@ const server = http.createServer(async (req, res) => {
     res.statusMessage = response.statusText;
     for(const [key, value] of response.headers) {
       try {
-        if(shouldSkip(key)) continue;
+        if(shouldSkip(key) || key === 'set-cookie') continue;
         res.setHeader(key, rewriteAll(value, localhost));
       } catch(e) { console.warn(e, key, value); }
+    }
+    const cookies = response.headers.getSetCookie();
+    if(cookies.length) {
+      res.setHeader('set-cookie', cookies.map(c => rewriteAll(c, localhost)));
     }
 
     if(/text|html|script|json|xml/i.test(response.headers.get('content-type'))) {
