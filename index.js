@@ -28,10 +28,11 @@ http.createServer(async(req, res) => {
     let stream;
     let request;
     let response;
+    let hostTarget;
     if(!/GET|HEAD/.test(method) && req.body){
       stream = new Response(Readable.toWeb(req.body));
     }
-    for(const hostTarget of targets){
+    for(hostTarget of targets){
       const url = `https://${hostTarget}${req.url}`;
       options.headers = new Headers();
       for(const key in req.headers){
@@ -93,7 +94,8 @@ http.createServer(async(req, res) => {
       console.warn(e,req,res);
       res.statusCode = 500;
       res.statusMessage = String(e);
-      res.end([inspect(e),inspect(req),inspect(res)].join('\n'));
+      res.end([inspect(e),inspect(req),inspect(res)]
+              .join('\n').split('\n').filter(x=>!x.includes('undefined')).join('\n'));
     }catch{}
   }
 }).listen(8080);
