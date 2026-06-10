@@ -22,6 +22,11 @@ const skipHeaders = [
 ];
 const shouldSkip = key => skipHeaders.some(x => RegExp(x,'i').test(key));
 
+const rewriteAll = (str, localhost) => {
+  for (const t of targets) str = str.replaceAll(t, localhost);
+  return str;
+};
+
 const server = http.createServer(async (req, res) => {
   try {
     const localhost = req.headers['host'];
@@ -56,13 +61,13 @@ const server = http.createServer(async (req, res) => {
     for(const [key, value] of response.headers) {
       try {
         if(shouldSkip(key)) continue;
-        res.setHeader(key, value.replace(hostTarget, localhost));
+        res.setHeader(key, rewriteAll(value, localhost));
       } catch(e) { console.warn(e, key, value); }
     }
 
     if(/text|html|script|json|xml/i.test(response.headers.get('content-type'))) {
       let text = await response.text();
-      res.write(text.replace(RegExp(hostTarget,'gi'), localhost));
+      res.write(rewriteAll(text, localhost));
     } else {
       for await (const chunk of response?.body ?? []) res.write(chunk);
     }
