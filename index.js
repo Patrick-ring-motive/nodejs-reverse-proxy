@@ -18,7 +18,7 @@ const fetchResponse = async (...args) => {
 http.createServer(async(req, res) => {
   try{
     const localhost = req.headers['host'];
-    const url = `https://${hostTarget}${req.path}`;
+    const url = `https://${hostTarget}${req.url}`;
     const headers = new Headers(Object.entries(req.headers).map(([key,value])=>[key,value.replace(localhost,hostTarget)]));
     const method = String(req.method).toUpperCase();
     const options = {method,headers};
