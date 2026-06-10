@@ -22,7 +22,7 @@ http.createServer(async(req, res) => {
     const headers = new Headers();
     for(const key in req.headers){
       try{
-        headers.set(key,String(req.headers[key].replace(localhost,hostTarget));
+        headers.set(key,String(req.headers[key]).replace(localhost,hostTarget));
       }catch(e){
         console.warn(e,key,value);
       }
