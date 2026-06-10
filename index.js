@@ -62,10 +62,15 @@ http.createServer(async(req, res) => {
         console.warn(e,key,value);
       }
     }
-    for await (const chunk of response?.body ?? []) {
-      res.write(chunk);
+    if(/text|html|script|json|xml/i.test(response.headers.get('content-type'))){
+      let text = await response.text();
+      text = text.replace(RegExp(hostTarget,'gi'),localhost);
+      res.write(text);
+    }else{
+      for await (const chunk of response?.body ?? []) {
+        res.write(chunk);
+      }
     }
-
     res.end();
   }catch(e){
     try{
