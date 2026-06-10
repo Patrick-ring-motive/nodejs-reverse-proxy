@@ -44,6 +44,7 @@ http.createServer(async(req, res) => {
     res.statusMessage = response.statusText;
     const skipHeaders = [
       'content-length',
+      'content-encoding',
       'x-content-type-options',
       'x-dns-prefetch-control',
       'x-frame-options',
