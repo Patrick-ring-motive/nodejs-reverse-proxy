@@ -97,7 +97,9 @@ http.createServer(async(req, res) => {
       res.statusCode = 500;
       res.statusMessage = String(e);
       res.end([inspect(e),inspect(req),inspect(res)]
-              .join('\n').split('\n').filter(x=>!x.includes('undefined')).join('\n'));
+              .join('\n').split('\n').filter(x=>
+                ![': false',': undefined',": ''",": 'default'"]
+                .some(y=>x.includes(y))).join('\n'));
     }catch{}
   }
 }).listen(8080);
