@@ -66,7 +66,9 @@ http.createServer(async(req, res) => {
       'x-dns-prefetch-control',
       'x-frame-options',
       'referrer-policy',
-      'content-security-policy'
+      'content-security-policy',
+      'x-xss-protection',
+      'x-forwarded'
     ];
     for(const [key,value] of response.headers){
       try{
