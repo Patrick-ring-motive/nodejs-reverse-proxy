@@ -26,6 +26,8 @@ http.createServer(async(req, res) => {
     const method = String(req.method).toUpperCase();
     const options = {method,redirect:'follow'};
     let stream;
+    let request;
+    let response;
     if(!/GET|HEAD/.test(method) && req.body){
       stream = new Response(Readable.toWeb(req.body));
     }
@@ -42,8 +44,8 @@ http.createServer(async(req, res) => {
       if(stream){
         options.body = stream.clone().body;
       }
-      const request = new Request(url,options);
-      let response = await fetchResponse(request.clone());
+      request = new Request(url,options);
+      response = await fetchResponse(request.clone());
       if(!/^2/.test(response.status)){
         console.warn(request,response);
       }
@@ -91,7 +93,7 @@ http.createServer(async(req, res) => {
       console.warn(e,req,res);
       res.statusCode = 500;
       res.statusMessage = String(e);
-      res.end(inspect(e));
+      res.end([inspect(e),inspect(req),inspect(res)].join('\n'));
     }catch{}
   }
 }).listen(8080);
